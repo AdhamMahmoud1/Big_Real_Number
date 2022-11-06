@@ -9,3 +9,4 @@ class BigReal {
     public:
 
 };
+#endif
