@@ -1,5 +1,5 @@
 #include "BigReal.h"
-
+using namespace std;
 
 // dividing the number into two parts
 void BigReal::divide_big_real(string& big_real) {
