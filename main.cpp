@@ -1,5 +1,6 @@
 #include <iostream>
-#include "BigReal.h"
+#include "BigDecimalIntClass.cpp"
+#include "BigReal.cpp"
 
 
 using namespace std;
