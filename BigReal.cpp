@@ -95,16 +95,16 @@ BigReal& BigReal:: operator= (BigReal&& another){
 bool BigReal::operator<(BigReal &anotherReal) {
     BigDecimalInt num1_integer_part(*integer_part);
     BigDecimalInt num1_other_part(*other_part);
-    BigDecimalInt num2_integer_part(*anotherReal.integer_part);
-    BigDecimalInt num2_other_part(*anotherReal.other_part);
+    BigDecimalInt num2_integer_part(*(anotherReal.integer_part));
+    BigDecimalInt num2_other_part(*(anotherReal.other_part));
 
     if(num1_integer_part < num2_integer_part){
         return true;
     }
-    else if (num1_integer_part > num1_other_part){
+    else if ( num1_integer_part > num2_integer_part){
         return false;
     } else{         // the two integer parts are equal
-        if(num1_other_part < num1_other_part){
+        if( num1_other_part < num2_other_part){
             return true;
         }
         else{       // > or ==
@@ -119,17 +119,17 @@ bool BigReal::operator<(BigReal &anotherReal) {
 bool BigReal::operator>(BigReal &anotherReal) {
     BigDecimalInt num1_integer_part(*integer_part);
     BigDecimalInt num1_other_part(*other_part);
-    BigDecimalInt num2_integer_part(*anotherReal.integer_part);
-    BigDecimalInt num2_other_part(*anotherReal.other_part);
+    BigDecimalInt num2_integer_part(*(anotherReal.integer_part));
+    BigDecimalInt num2_other_part(*(anotherReal.other_part));
 
 
     if(num1_integer_part > num2_integer_part){
         return true;
     }
-    else if (num1_integer_part < num1_other_part){
+    else if (num1_integer_part < num2_integer_part){
         return false;
     } else{         // the two integer parts are equal
-        if(num1_other_part > num1_other_part){
+        if(num1_other_part > num2_other_part){
             return true;
         }
         else{       // < or ==
@@ -143,8 +143,8 @@ bool BigReal::operator>(BigReal &anotherReal) {
 bool BigReal::operator==(BigReal &anotherReal) {
     BigDecimalInt num1_integer_part(*integer_part);
     BigDecimalInt num1_other_part(*other_part);
-    BigDecimalInt num2_integer_part(*anotherReal.integer_part);
-    BigDecimalInt num2_other_part(*anotherReal.other_part);
+    BigDecimalInt num2_integer_part(*(anotherReal.integer_part));
+    BigDecimalInt num2_other_part(*(anotherReal.other_part));
 
     if(num1_integer_part == num2_integer_part && num1_other_part == num2_other_part){
         return true;
@@ -156,7 +156,7 @@ bool BigReal::operator==(BigReal &anotherReal) {
 
 // overloading the output operator <<
 ostream& operator << (ostream& out, BigReal &num){
-    out << num.integer_part  << '.' << num.other_part;
+    out << *(num.integer_part)  << '.' << *(num.other_part);
     return out;
 }
 
@@ -178,3 +178,94 @@ int BigReal::sign() {
     return A.sign();
 }
 
+
+BigReal BigReal::operator+ (BigReal& another){
+    string n1_integer = *integer_part;
+    string n1_other_part = *other_part;
+    string n2_integer = *(another.integer_part);
+    string n2_other_part = *(another.other_part); 
+
+    int n1_sz = n1_other_part.size();
+    int n2_sz = n2_other_part.size();
+
+    if( n1_sz > n2_sz){
+        for(int i = 0; i < (n1_sz - n2_sz);i++){
+            n2_other_part.push_back('0');
+        }
+    }
+    else if (n1_sz < n2_sz){
+        for(int i = 0; i < (n2_sz - n1_sz);i++){
+            n1_other_part.push_back('0');
+        }
+    }
+
+    int sz = n1_other_part.size();
+
+    string n1 = n1_integer + n1_other_part, n2 = n2_integer + n2_other_part;
+
+    BigDecimalInt A(n1),B(n2);
+    
+    BigDecimalInt sum;
+    sum = A + B;
+
+
+    string sm = sum.getNumber();
+
+    sm.insert(sm.begin() + (sm.size() - sz),'.');
+
+    
+    BigReal ans(sm);
+    if(sum.sign() == 0){
+        sm = "-" + sm;
+        ans.divide_big_real(sm);
+    }
+    else{
+        ans.divide_big_real(sm);
+    }
+ 
+
+    return ans;
+
+}
+
+ BigReal BigReal::operator- (BigReal& another){
+    string n1_integer = *integer_part;
+    string n1_other_part = *other_part;
+    string n2_integer = *(another.integer_part);
+    string n2_other_part = *(another.other_part); 
+
+    int n1_sz = n1_other_part.size();
+    int n2_sz = n2_other_part.size();
+    if( n1_sz > n2_sz){
+        for(int i = 0; i < (n1_sz - n2_sz);i++){
+            n2_other_part.push_back('0');
+        }
+    }
+    else if (n1_sz < n2_sz){
+        for(int i = 0; i < (n2_sz - n1_sz);i++){
+            n1_other_part.push_back('0');
+        }
+    }
+
+    int sz = n1_other_part.size();
+
+    string n1 = n1_integer + n1_other_part, n2 = n2_integer + n2_other_part;
+
+    BigDecimalInt A(n1),B(n2);
+    
+    BigDecimalInt sum;
+    sum = A - B;
+
+    string sm = sum.getNumber();
+    sm.insert(sm.begin() + (sm.size() - sz),'.');
+    BigReal ans(sm);
+    if(sum.sign() == 0){
+        sm = "-" + sm;
+        ans.divide_big_real(sm);
+    }
+    else{
+        ans.divide_big_real(sm);
+    }
+  return ans;
+
+}

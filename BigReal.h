@@ -19,8 +19,8 @@ public:
     ~BigReal();
     BigReal& operator= (BigReal& another); // Assignment operator
     BigReal& operator= (BigReal&& another); // Move assignment
-    BigReal& operator+ (BigReal& another);
-    BigReal& operator- (BigReal& another);
+    BigReal operator+ (BigReal &another);
+    BigReal operator- (BigReal &another);
     bool operator< (BigReal &anotherReal);
     bool operator> (BigReal &anotherReal);
     bool operator== (BigReal &anotherReal);
@@ -29,5 +29,6 @@ public:
     friend ostream& operator << (ostream& out, BigReal &num);
     friend istream& operator >> (istream& in, BigReal &num);
 };
+
 
 #endif
