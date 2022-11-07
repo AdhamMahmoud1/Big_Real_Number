@@ -1,34 +1,44 @@
 #include "BigReal.h"
 using namespace std;
 
+bool BigReal :: checkValidInput(string input)
+{
+    regex validInput("[-+]?[0-9]*.[0-9]*");
+    return regex_match(input, validInput);
+}
+
+
 // dividing the number into two parts
 void BigReal::divide_big_real(string& big_real) {
     size_t dot = big_real.find('.');
+    bool valid = checkValidInput(big_real);
+    if (!valid){cout << "Unvalid Number" << endl;}
+    else{
+        if(dot == 0){            // dot at the first index so the integer part is 0 :  .12    ====     (0)  (12)
+            integer_part = new string ("0");
+        }
+        else{integer_part = new string (big_real.substr(0,dot));}
 
-
-    if(dot == 0)            // dot at the first index so the integer part is 0 :  .12    ====     (0)  (12)
-        integer_part = '0';
-    else
-        integer_part = big_real.substr(0,dot);
-
-    if(dot != string::npos)
-        other_part = big_real.substr(dot + 1,big_real.size() + 1);
-    else                // there is no dot so the rational part is 0 :  12  -->  12 . 0
-        other_part = '0';
+        if(dot != string::npos){
+            if (dot == (big_real.size() - 1)){other_part = new string ("0"); }
+            else {other_part = new string (big_real.substr(dot + 1,big_real.size() + 1));}
+        }
+        else{other_part = new string ("0");}              // there is no dot so the rational part is 0 :  12  -->  12 . 0 
+    }
 }
 
 
 // constructors :
 
-// double constructor
+// default constructor
 BigReal::BigReal (double realNumber){
-
     string big_real = to_string(realNumber);
-
     divide_big_real(big_real);
+}
 
-
-
+BigReal::~BigReal(){
+    delete integer_part;
+    delete other_part;
 }
 
 
@@ -37,20 +47,60 @@ BigReal::BigReal(string realNumber) {
 }
 
 BigReal::BigReal (BigDecimalInt bigInteger){
-    integer_part = bigInteger.getNumber();
-    other_part = '0';
+    integer_part = new string (bigInteger.getNumber());
+    other_part = new string("0");
 }
 
 
 
+// Copy constructor
+BigReal::BigReal (const BigReal& another) {
+    this->integer_part = another.integer_part;
+    this->other_part = another.other_part;
+}
+
+// Move Constructor
+BigReal::BigReal(BigReal&& another){
+    this-> integer_part = another.integer_part;
+    this-> other_part = another.other_part;
+    another.integer_part = nullptr;
+    another.other_part = nullptr;
+}
+
+// Assignment operator
+BigReal& BigReal:: operator= (BigReal& another){
+    delete integer_part;
+    delete other_part;
+    integer_part = another.integer_part;
+    other_part = another.other_part;
+    return *this;
+}
+
+// Move Assignment
+BigReal& BigReal:: operator= (BigReal&& another){
+    if (this != &another){
+        delete integer_part;
+        delete other_part;
+        this-> integer_part = another.integer_part;
+        this-> other_part = another.other_part;
+        another.integer_part = nullptr;
+        another.other_part = nullptr;
+    }
+    return *this;
+}
+
+void BigReal:: test(){
+    cout << *integer_part << endl;
+    cout << *other_part << endl;
+}
 
 // comparison operators
 
 bool BigReal::operator<(BigReal &anotherReal) {
-    BigDecimalInt num1_integer_part(integer_part);
-    BigDecimalInt num1_other_part(other_part);
-    BigDecimalInt num2_integer_part(anotherReal.integer_part);
-    BigDecimalInt num2_other_part(anotherReal.other_part);
+    BigDecimalInt num1_integer_part(*integer_part);
+    BigDecimalInt num1_other_part(*other_part);
+    BigDecimalInt num2_integer_part(*anotherReal.integer_part);
+    BigDecimalInt num2_other_part(*anotherReal.other_part);
 
     if(num1_integer_part < num2_integer_part){
         return true;
@@ -69,11 +119,12 @@ bool BigReal::operator<(BigReal &anotherReal) {
 
 
 }
+
 bool BigReal::operator>(BigReal &anotherReal) {
-    BigDecimalInt num1_integer_part(integer_part);
-    BigDecimalInt num1_other_part(other_part);
-    BigDecimalInt num2_integer_part(anotherReal.integer_part);
-    BigDecimalInt num2_other_part(anotherReal.other_part);
+    BigDecimalInt num1_integer_part(*integer_part);
+    BigDecimalInt num1_other_part(*other_part);
+    BigDecimalInt num2_integer_part(*anotherReal.integer_part);
+    BigDecimalInt num2_other_part(*anotherReal.other_part);
 
 
     if(num1_integer_part > num2_integer_part){
@@ -94,10 +145,10 @@ bool BigReal::operator>(BigReal &anotherReal) {
 
 
 bool BigReal::operator==(BigReal &anotherReal) {
-    BigDecimalInt num1_integer_part(integer_part);
-    BigDecimalInt num1_other_part(other_part);
-    BigDecimalInt num2_integer_part(anotherReal.integer_part);
-    BigDecimalInt num2_other_part(anotherReal.other_part);
+    BigDecimalInt num1_integer_part(*integer_part);
+    BigDecimalInt num1_other_part(*other_part);
+    BigDecimalInt num2_integer_part(*anotherReal.integer_part);
+    BigDecimalInt num2_other_part(*anotherReal.other_part);
 
     if(num1_integer_part == num2_integer_part && num1_other_part == num2_other_part){
         return true;
@@ -127,8 +178,7 @@ istream& operator >> (istream& in, BigReal &num){
 // return 1 if the sign is positive or 0 if negative
 int BigReal::sign() {
     // return the sign of the integer part
-    BigDecimalInt A(integer_part);
+    BigDecimalInt A(*integer_part);
     return A.sign();
 }
-
 
