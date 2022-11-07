@@ -89,10 +89,6 @@ BigReal& BigReal:: operator= (BigReal&& another){
     return *this;
 }
 
-void BigReal:: test(){
-    cout << *integer_part << endl;
-    cout << *other_part << endl;
-}
 
 // comparison operators
 
